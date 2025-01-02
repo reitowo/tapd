@@ -9,6 +9,28 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestBugService_BugSeverity(t *testing.T) {
+	tests := []struct {
+		severity   BugSeverity
+		wantString string
+		wantHuman  string
+	}{
+		{BugSeverityFatal, "fatal", "致命"},
+		{BugSeveritySerious, "serious", "严重"},
+		{BugSeverityNormal, "normal", "一般"},
+		{BugSeverityPrompt, "prompt", "提示"},
+		{BugSeverityAdvice, "advice", "建议"},
+		{BugSeverity(""), "", ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.severity.String(), func(t *testing.T) {
+			assert.Equal(t, tt.wantString, tt.severity.String())
+			assert.Equal(t, tt.wantHuman, tt.severity.Human())
+		})
+	}
+}
+
 func TestBugService_GetBugs(t *testing.T) {
 	_, client := createServerClient(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, http.MethodGet, r.Method)
@@ -32,7 +54,7 @@ func TestBugService_GetBugs(t *testing.T) {
 	assert.Equal(t, "计算不正确", bug.Title)
 	assert.Equal(t, "<strong>前置条件</div><br  />", bug.Description)
 	assert.Equal(t, "", bug.Priority)
-	assert.Equal(t, "", bug.Severity)
+	assert.Equal(t, BugSeverityNormal, bug.Severity)
 	assert.Equal(t, "", bug.Module)
 	assert.Equal(t, "closed", bug.Status)
 	assert.Equal(t, "测试人员", bug.Reporter)
@@ -56,11 +78,13 @@ func TestBugService_UpdateBug(t *testing.T) {
 			WorkspaceID   int           `json:"workspace_id"`
 			ID            int           `json:"id"`
 			PriorityLabel PriorityLabel `json:"priority_label"`
+			Severity      string        `json:"severity"`
 		}
 		require.NoError(t, json.NewDecoder(r.Body).Decode(&req))
 		assert.Equal(t, 11112222, req.WorkspaceID)
 		assert.Equal(t, 11111222330268, req.ID)
 		assert.Equal(t, PriorityLabelHigh, req.PriorityLabel)
+		assert.Equal(t, "fatal|serious", req.Severity)
 
 		_, _ = w.Write(loadData(t, ".testdata/api/bug/update_bug.json"))
 	}))
@@ -69,6 +93,7 @@ func TestBugService_UpdateBug(t *testing.T) {
 		WorkspaceID:   Ptr(11112222),
 		ID:            Ptr(11111222330268),
 		PriorityLabel: Ptr(PriorityLabelHigh),
+		Severity:      NewEnum(BugSeverityFatal, BugSeveritySerious),
 	})
 	require.NoError(t, err)
 
@@ -76,5 +101,5 @@ func TestBugService_UpdateBug(t *testing.T) {
 	assert.Equal(t, "计算不正确222", bug.Title)
 	assert.Equal(t, "", bug.Description)
 	assert.Equal(t, "", bug.Priority)
-	assert.Equal(t, "", bug.Severity)
+	assert.Equal(t, BugSeverityNormal, bug.Severity)
 }

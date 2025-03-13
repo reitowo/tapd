@@ -598,3 +598,185 @@ func (s *TaskService) GetTaskFieldsInfo(
 
 	return fields, resp, nil
 }
+
+type AddTaskRequest struct {
+	WorkspaceID      *int64         `json:"workspace_id,omitempty"`   // [必须]项目ID
+	Name             *string        `json:"name,omitempty"`           // 任务标题
+	Description      *string        `json:"description,omitempty"`    // 任务详细描述
+	Creator          *string        `json:"creator,omitempty"`        // 创建人
+	Owner            *string        `json:"owner,omitempty"`          // 任务当前处理人
+	CC               *string        `json:"cc,omitempty"`             // 抄送人
+	Begin            *string        `json:"begin,omitempty"`          // 预计开始
+	Due              *string        `json:"due,omitempty"`            // 预计结束
+	StoryID          *int64         `json:"story_id,omitempty"`       // 关联需求的ID
+	IterationID      *Enum[int]     `json:"iteration_id,omitempty"`   // 所属迭代的ID
+	Priority         *string        `json:"priority,omitempty"`       //nolint:lll // 优先级。为了兼容自定义优先级，请使用 priority_label 字段，详情参考：如何兼容自定义优先级
+	PriorityLabel    *PriorityLabel `json:"priority_label,omitempty"` // 优先级。推荐使用这个字段
+	Effort           *string        `json:"effort,omitempty"`         // 预估工时
+	Label            *Enum[string]  `json:"label,omitempty"`          // 标签查询	支持枚举查询
+	CustomFieldOne   *string        `json:"custom_field_one,omitempty"`
+	CustomFieldTwo   *string        `json:"custom_field_two,omitempty"`
+	CustomFieldThree *string        `json:"custom_field_three,omitempty"`
+	CustomFieldFour  *string        `json:"custom_field_four,omitempty"`
+	CustomFieldFive  *string        `json:"custom_field_five,omitempty"`
+	CustomFieldSix   *string        `json:"custom_field_six,omitempty"`
+	CustomFieldSeven *string        `json:"custom_field_seven,omitempty"`
+	CustomFieldEight *string        `json:"custom_field_eight,omitempty"`
+	CustomField9     *string        `json:"custom_field_9,omitempty"`
+	CustomField10    *string        `json:"custom_field_10,omitempty"`
+	CustomField11    *string        `json:"custom_field_11,omitempty"`
+	CustomField12    *string        `json:"custom_field_12,omitempty"`
+	CustomField13    *string        `json:"custom_field_13,omitempty"`
+	CustomField14    *string        `json:"custom_field_14,omitempty"`
+	CustomField15    *string        `json:"custom_field_15,omitempty"`
+	CustomField16    *string        `json:"custom_field_16,omitempty"`
+	CustomField17    *string        `json:"custom_field_17,omitempty"`
+	CustomField18    *string        `json:"custom_field_18,omitempty"`
+	CustomField19    *string        `json:"custom_field_19,omitempty"`
+	CustomField20    *string        `json:"custom_field_20,omitempty"`
+	CustomField21    *string        `json:"custom_field_21,omitempty"`
+	CustomField22    *string        `json:"custom_field_22,omitempty"`
+	CustomField23    *string        `json:"custom_field_23,omitempty"`
+	CustomField24    *string        `json:"custom_field_24,omitempty"`
+	CustomField25    *string        `json:"custom_field_25,omitempty"`
+	CustomField26    *string        `json:"custom_field_26,omitempty"`
+	CustomField27    *string        `json:"custom_field_27,omitempty"`
+	CustomField28    *string        `json:"custom_field_28,omitempty"`
+	CustomField29    *string        `json:"custom_field_29,omitempty"`
+	CustomField30    *string        `json:"custom_field_30,omitempty"`
+	CustomField31    *string        `json:"custom_field_31,omitempty"`
+	CustomField32    *string        `json:"custom_field_32,omitempty"`
+	CustomField33    *string        `json:"custom_field_33,omitempty"`
+	CustomField34    *string        `json:"custom_field_34,omitempty"`
+	CustomField35    *string        `json:"custom_field_35,omitempty"`
+	CustomField36    *string        `json:"custom_field_36,omitempty"`
+	CustomField37    *string        `json:"custom_field_37,omitempty"`
+	CustomField38    *string        `json:"custom_field_38,omitempty"`
+	CustomField39    *string        `json:"custom_field_39,omitempty"`
+	CustomField40    *string        `json:"custom_field_40,omitempty"`
+	CustomField41    *string        `json:"custom_field_41,omitempty"`
+	CustomField42    *string        `json:"custom_field_42,omitempty"`
+	CustomField43    *string        `json:"custom_field_43,omitempty"`
+	CustomField44    *string        `json:"custom_field_44,omitempty"`
+	CustomField45    *string        `json:"custom_field_45,omitempty"`
+	CustomField46    *string        `json:"custom_field_46,omitempty"`
+	CustomField47    *string        `json:"custom_field_47,omitempty"`
+	CustomField48    *string        `json:"custom_field_48,omitempty"`
+	CustomField49    *string        `json:"custom_field_49,omitempty"`
+	CustomField50    *string        `json:"custom_field_50,omitempty"`
+}
+
+// AddTask 新建任务
+//
+// https://open.tapd.cn/document/api-doc/API%E6%96%87%E6%A1%A3/api_reference/task/add_task.html
+func (s *TaskService) AddTask(
+	ctx context.Context, request *AddTaskRequest, opts ...RequestOption,
+) (*Task, *Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodPost, "tasks", request, opts)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var item struct {
+		Task *Task `json:"Task"`
+	}
+	resp, err := s.client.Do(req, &item)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return item.Task, resp, nil
+}
+
+type UpdateTaskRequest struct {
+	ID                 *int64         `json:"id,omitempty"`                   // [必须]任务ID
+	WorkspaceID        *int64         `json:"workspace_id,omitempty"`         // [必须]项目ID
+	Name               *string        `json:"name,omitempty"`                 // 任务标题
+	Description        *string        `json:"description,omitempty"`          // 任务详细描述
+	Creator            *string        `json:"creator,omitempty"`              // 创建人
+	Status             *string        `json:"status,omitempty"`               // 状态
+	Owner              *string        `json:"owner,omitempty"`                // 任务当前处理人
+	CurrentUser        *string        `json:"current_user,omitempty"`         // 操作人
+	CC                 *string        `json:"cc,omitempty"`                   // 抄送人
+	Begin              *string        `json:"begin,omitempty"`                // 预计开始
+	Due                *string        `json:"due,omitempty"`                  // 预计结束
+	StoryID            *int64         `json:"story_id,omitempty"`             // 关联需求的ID
+	IterationID        *Enum[int]     `json:"iteration_id,omitempty"`         // 所属迭代的ID
+	Priority           *string        `json:"priority,omitempty"`             //nolint:lll // 优先级。为了兼容自定义优先级，请使用 priority_label 字段，详情参考：如何兼容自定义优先级
+	PriorityLabel      *PriorityLabel `json:"priority_label,omitempty"`       // 优先级。推荐使用这个字段
+	Effort             *string        `json:"effort,omitempty"`               // 预估工时
+	AutoCompleteEffort *int           `json:"auto_complete_effort,omitempty"` // 是否自动补齐工时，取1时，并且状态流转到 done，就补齐
+	Label              *Enum[string]  `json:"label,omitempty"`                // 标签查询	支持枚举查询
+	CustomFieldOne     *string        `json:"custom_field_one,omitempty"`
+	CustomFieldTwo     *string        `json:"custom_field_two,omitempty"`
+	CustomFieldThree   *string        `json:"custom_field_three,omitempty"`
+	CustomFieldFour    *string        `json:"custom_field_four,omitempty"`
+	CustomFieldFive    *string        `json:"custom_field_five,omitempty"`
+	CustomFieldSix     *string        `json:"custom_field_six,omitempty"`
+	CustomFieldSeven   *string        `json:"custom_field_seven,omitempty"`
+	CustomFieldEight   *string        `json:"custom_field_eight,omitempty"`
+	CustomField9       *string        `json:"custom_field_9,omitempty"`
+	CustomField10      *string        `json:"custom_field_10,omitempty"`
+	CustomField11      *string        `json:"custom_field_11,omitempty"`
+	CustomField12      *string        `json:"custom_field_12,omitempty"`
+	CustomField13      *string        `json:"custom_field_13,omitempty"`
+	CustomField14      *string        `json:"custom_field_14,omitempty"`
+	CustomField15      *string        `json:"custom_field_15,omitempty"`
+	CustomField16      *string        `json:"custom_field_16,omitempty"`
+	CustomField17      *string        `json:"custom_field_17,omitempty"`
+	CustomField18      *string        `json:"custom_field_18,omitempty"`
+	CustomField19      *string        `json:"custom_field_19,omitempty"`
+	CustomField20      *string        `json:"custom_field_20,omitempty"`
+	CustomField21      *string        `json:"custom_field_21,omitempty"`
+	CustomField22      *string        `json:"custom_field_22,omitempty"`
+	CustomField23      *string        `json:"custom_field_23,omitempty"`
+	CustomField24      *string        `json:"custom_field_24,omitempty"`
+	CustomField25      *string        `json:"custom_field_25,omitempty"`
+	CustomField26      *string        `json:"custom_field_26,omitempty"`
+	CustomField27      *string        `json:"custom_field_27,omitempty"`
+	CustomField28      *string        `json:"custom_field_28,omitempty"`
+	CustomField29      *string        `json:"custom_field_29,omitempty"`
+	CustomField30      *string        `json:"custom_field_30,omitempty"`
+	CustomField31      *string        `json:"custom_field_31,omitempty"`
+	CustomField32      *string        `json:"custom_field_32,omitempty"`
+	CustomField33      *string        `json:"custom_field_33,omitempty"`
+	CustomField34      *string        `json:"custom_field_34,omitempty"`
+	CustomField35      *string        `json:"custom_field_35,omitempty"`
+	CustomField36      *string        `json:"custom_field_36,omitempty"`
+	CustomField37      *string        `json:"custom_field_37,omitempty"`
+	CustomField38      *string        `json:"custom_field_38,omitempty"`
+	CustomField39      *string        `json:"custom_field_39,omitempty"`
+	CustomField40      *string        `json:"custom_field_40,omitempty"`
+	CustomField41      *string        `json:"custom_field_41,omitempty"`
+	CustomField42      *string        `json:"custom_field_42,omitempty"`
+	CustomField43      *string        `json:"custom_field_43,omitempty"`
+	CustomField44      *string        `json:"custom_field_44,omitempty"`
+	CustomField45      *string        `json:"custom_field_45,omitempty"`
+	CustomField46      *string        `json:"custom_field_46,omitempty"`
+	CustomField47      *string        `json:"custom_field_47,omitempty"`
+	CustomField48      *string        `json:"custom_field_48,omitempty"`
+	CustomField49      *string        `json:"custom_field_49,omitempty"`
+	CustomField50      *string        `json:"custom_field_50,omitempty"`
+}
+
+// UpdateTask 更新任务
+//
+// https://open.tapd.cn/document/api-doc/API%E6%96%87%E6%A1%A3/api_reference/task/update_task.html
+func (s *TaskService) UpdateTask(
+	ctx context.Context, request *UpdateTaskRequest, opts ...RequestOption,
+) (*Task, *Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodPost, "tasks", request, opts)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var item struct {
+		Task *Task `json:"Task"`
+	}
+	resp, err := s.client.Do(req, &item)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return item.Task, resp, nil
+}

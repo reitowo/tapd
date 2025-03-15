@@ -30,7 +30,7 @@ func TestStoryService_GetStoryCategories(t *testing.T) {
 
 	categories, _, err := client.StoryService.GetStoryCategories(ctx, &GetStoryCategoriesRequest{
 		WorkspaceID: Ptr(11112222),
-		ID:          NewMulti(1111111111111, 1111111111112),
+		ID:          NewMulti[int64](1111111111111, 1111111111112),
 		Name:        Ptr("test name"),
 		Description: Ptr("test description"),
 		ParentID:    Ptr(1111111111111),
@@ -72,7 +72,7 @@ func TestStoryService_GetStoryCategoriesCount(t *testing.T) {
 
 	count, _, err := client.StoryService.GetStoryCategoriesCount(ctx, &GetStoryCategoriesCountRequest{
 		WorkspaceID: Ptr(11112222),
-		ID:          NewMulti(1111111111111, 1111111111112),
+		ID:          NewMulti[int64](1111111111111, 1111111111112),
 		Name:        Ptr("test name"),
 		Description: Ptr("test description"),
 		ParentID:    Ptr(1111111111111),
@@ -96,7 +96,7 @@ func TestStoryService_GetStoriesCountByCategories(t *testing.T) {
 
 	counts, _, err := client.StoryService.GetStoriesCountByCategories(ctx, &GetStoriesCountByCategoriesRequest{
 		WorkspaceID: Ptr(11112222),
-		CategoryID:  NewMulti(1111112222001000103, 1111112222001000108),
+		CategoryID:  NewMulti[int64](1111112222001000103, 1111112222001000108),
 	})
 	assert.NoError(t, err)
 	assert.True(t, len(counts) > 0)
@@ -118,7 +118,7 @@ func TestStoryService_GetStoryChanges(t *testing.T) {
 	}))
 
 	storyChanges, _, err := client.StoryService.GetStoryChanges(ctx, &GetStoryChangesRequest{
-		StoryID:     NewMulti(1111112222001000103, 1111112222001000108),
+		StoryID:     NewMulti[int64](1111112222001000103, 1111112222001000108),
 		WorkspaceID: Ptr(11112222),
 	})
 	assert.NoError(t, err)
@@ -192,7 +192,7 @@ func TestStoryService_GetStoryRelatedBugs(t *testing.T) {
 
 	relatedBugs, _, err := client.StoryService.GetStoryRelatedBugs(ctx, &GetStoryRelatedBugsRequest{
 		WorkspaceID: Ptr(11112222),
-		StoryID:     NewMulti(33334444, 55556666),
+		StoryID:     NewMulti[int64](33334444, 55556666),
 	})
 	assert.NoError(t, err)
 	assert.True(t, len(relatedBugs) > 0)
@@ -240,7 +240,7 @@ func TestStoryService_GetStoryTemplateFields(t *testing.T) {
 
 	fields, _, err := client.StoryService.GetStoryTemplateFields(ctx, &GetStoryTemplateFieldsRequest{
 		WorkspaceID: Ptr(11112222),
-		TemplateID:  Ptr(1111111111111),
+		TemplateID:  Ptr(int64(1111111111111)),
 	})
 	assert.NoError(t, err)
 	assert.True(t, len(fields) > 0)
@@ -311,7 +311,7 @@ func TestStoryService_GetConvertStoryIDsToQueryToken(t *testing.T) {
 
 	response, _, err := client.StoryService.GetConvertStoryIDsToQueryToken(ctx, &GetConvertStoryIDsToQueryTokenRequest{
 		WorkspaceID: Ptr(11112222),
-		StoryIDs:    NewMulti(33334444, 55556666),
+		StoryIDs:    NewMulti[int64](33334444, 55556666),
 	})
 	assert.NoError(t, err)
 	assert.Equal(t, "11111111111", response.QueryToken)

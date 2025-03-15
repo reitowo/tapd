@@ -368,7 +368,7 @@ func (s *StoryService) GetStories(
 }
 
 type GetStoriesRequest struct {
-	ID                *Multi[int]        `url:"id,omitempty"`               // ID	支持多ID查询,多个ID用逗号分隔
+	ID                *Multi[int64]      `url:"id,omitempty"`               // ID	支持多ID查询,多个ID用逗号分隔
 	Name              *string            `url:"name,omitempty"`             // 标题	支持模糊匹配
 	Priority          *string            `url:"priority,omitempty"`         // 优先级
 	PriorityLabel     *PriorityLabel     `url:"priority_label,omitempty"`   // 优先级。推荐使用这个字段
@@ -644,7 +644,7 @@ func (s *StoryService) GetStoriesCount(
 }
 
 type GetStoriesCountRequest struct {
-	ID                *Multi[int]    `url:"id,omitempty"`               // ID	支持多ID查询,多个ID用逗号分隔
+	ID                *Multi[int64]  `url:"id,omitempty"`               // ID	支持多ID查询,多个ID用逗号分隔
 	Name              *string        `url:"name,omitempty"`             // 标题	支持模糊匹配
 	Priority          *string        `url:"priority,omitempty"`         // 优先级。
 	PriorityLabel     *PriorityLabel `url:"priority_label,omitempty"`   // 优先级。推荐使用这个字段
@@ -925,7 +925,7 @@ func (s *StoryService) GetStoryCategories(
 
 type GetStoryCategoriesRequest struct {
 	WorkspaceID *int           `url:"workspace_id,omitempty"` // [必须]项目ID
-	ID          *Multi[int]    `url:"id,omitempty"`           // ID 支持多ID查询，多个ID用逗号分隔
+	ID          *Multi[int64]  `url:"id,omitempty"`           // ID 支持多ID查询，多个ID用逗号分隔
 	Name        *string        `url:"name,omitempty"`         // 需求分类名称	支持模糊匹配
 	Description *string        `url:"description,omitempty"`  // 需求分类描述
 	ParentID    *int           `url:"parent_id,omitempty"`    // 父分类ID
@@ -954,13 +954,13 @@ type StoryCategory struct {
 // -----------------------------------------------------------------------------
 
 type GetStoryCategoriesCountRequest struct {
-	WorkspaceID *int        `url:"workspace_id,omitempty"` // [必须]项目ID
-	ID          *Multi[int] `url:"id,omitempty"`           // ID 支持多ID查询，多个ID用逗号分隔
-	Name        *string     `url:"name,omitempty"`         // 需求分类名称	支持模糊匹配
-	Description *string     `url:"description,omitempty"`  // 需求分类描述
-	ParentID    *int        `url:"parent_id,omitempty"`    // 父分类ID
-	Created     *string     `url:"created,omitempty"`      // 创建时间	支持时间查询
-	Modified    *string     `url:"modified,omitempty"`     // 最后修改时间	支持时间查询
+	WorkspaceID *int          `url:"workspace_id,omitempty"` // [必须]项目ID
+	ID          *Multi[int64] `url:"id,omitempty"`           // ID 支持多ID查询，多个ID用逗号分隔
+	Name        *string       `url:"name,omitempty"`         // 需求分类名称	支持模糊匹配
+	Description *string       `url:"description,omitempty"`  // 需求分类描述
+	ParentID    *int          `url:"parent_id,omitempty"`    // 父分类ID
+	Created     *string       `url:"created,omitempty"`      // 创建时间	支持时间查询
+	Modified    *string       `url:"modified,omitempty"`     // 最后修改时间	支持时间查询
 }
 
 // GetStoryCategoriesCount 获取需求分类数量
@@ -988,8 +988,8 @@ func (s *StoryService) GetStoryCategoriesCount(
 // -----------------------------------------------------------------------------
 
 type GetStoriesCountByCategoriesRequest struct {
-	WorkspaceID *int        `url:"workspace_id,omitempty"` // [必须]项目ID
-	CategoryID  *Multi[int] `url:"category_id,omitempty"`  // 需求分类 支持多ID。比如 id1,id2,id3
+	WorkspaceID *int          `url:"workspace_id,omitempty"` // [必须]项目ID
+	CategoryID  *Multi[int64] `url:"category_id,omitempty"`  // 需求分类 支持多ID。比如 id1,id2,id3
 }
 
 type StoriesCountByCategory struct {
@@ -1078,8 +1078,8 @@ const (
 )
 
 type GetStoryChangesRequest struct {
-	ID               *Multi[int]      `url:"id,omitempty"`
-	StoryID          *Multi[int]      `url:"story_id,omitempty"`           // 需求id	支持多ID查询
+	ID               *Multi[int64]    `url:"id,omitempty"`
+	StoryID          *Multi[int64]    `url:"story_id,omitempty"`           // 需求id	支持多ID查询
 	WorkspaceID      *int             `url:"workspace_id,omitempty"`       // [必须]项目ID
 	Creator          *string          `url:"creator,omitempty"`            // 创建人（操作人）
 	Created          *string          `url:"created,omitempty"`            // 创建时间（变更时间）	支持时间查询
@@ -1226,7 +1226,7 @@ func (s *StoryService) UpdateStory(
 }
 
 type UpdateStoryRequest struct {
-	ID                *int           `json:"id"`                           // 必须
+	ID                *int64         `json:"id"`                           // 必须
 	WorkspaceID       *int           `json:"workspace_id"`                 // 必须
 	Name              *string        `json:"name,omitempty"`               // 标题
 	Priority          *string        `json:"priority,omitempty"`           // 优先级。
@@ -1249,7 +1249,7 @@ type UpdateStoryRequest struct {
 	EffortCompleted   *string        `json:"effort_completed,omitempty"`   // 完成工时
 	Remain            *float64       `json:"remain,omitempty"`             // 剩余工时
 	Exceed            *float64       `json:"exceed,omitempty"`             // 超出工时
-	CategoryID        *int           `json:"category_id,omitempty"`        // 需求分类ID
+	CategoryID        *int64         `json:"category_id,omitempty"`        // 需求分类ID
 	ReleaseID         *int           `json:"release_id,omitempty"`         // 发布计划ID
 	Source            *string        `json:"source,omitempty"`             // 来源
 	Type              *string        `json:"type,omitempty"`               // 类型
@@ -1550,8 +1550,8 @@ func (s *StoryService) GetStoryTemplateFields(
 }
 
 type GetStoryTemplateFieldsRequest struct {
-	WorkspaceID *int `url:"workspace_id,omitempty"` // [必须]项目ID
-	TemplateID  *int `url:"template_id,omitempty"`  // [必须]模板ID
+	WorkspaceID *int   `url:"workspace_id,omitempty"` // [必须]项目ID
+	TemplateID  *int64 `url:"template_id,omitempty"`  // [必须]模板ID
 }
 
 type StoryTemplateField struct {
@@ -1639,8 +1639,8 @@ func (s *StoryService) GetStoryRelatedBugs(
 }
 
 type GetStoryRelatedBugsRequest struct {
-	WorkspaceID *int        `url:"workspace_id,omitempty"`
-	StoryID     *Multi[int] `url:"story_id,omitempty"`
+	WorkspaceID *int          `url:"workspace_id,omitempty"`
+	StoryID     *Multi[int64] `url:"story_id,omitempty"`
 }
 
 type StoryRelatedBug struct {
@@ -1694,8 +1694,8 @@ func (s *StoryService) GetConvertStoryIDsToQueryToken(
 }
 
 type GetConvertStoryIDsToQueryTokenRequest struct {
-	WorkspaceID *int        `json:"workspace_id,omitempty"` // 项目ID
-	StoryIDs    *Multi[int] `json:"ids,omitempty"`          // 需求ID
+	WorkspaceID *int          `json:"workspace_id,omitempty"` // 项目ID
+	StoryIDs    *Multi[int64] `json:"ids,omitempty"`          // 需求ID
 }
 
 type GetConvertStoryIDsToQueryTokenResponse struct {

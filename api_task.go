@@ -780,3 +780,31 @@ func (s *TaskService) UpdateTask(
 
 	return item.Task, resp, nil
 }
+
+type DeleteTaskRequest struct {
+	ID          *int64  `json:"id,omitempty"`           // [必须]任务ID
+	WorkspaceID *int64  `json:"workspace_id,omitempty"` // [必须]项目ID
+	CurrentUser *string `json:"current_user,omitempty"` // [必须]创建者，防止误删
+}
+
+// DeleteTask 删除任务
+//
+// No document
+func (s *TaskService) DeleteTask(
+	ctx context.Context, request *DeleteTaskRequest, opts ...RequestOption,
+) (*Task, *Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodPost, "tasks/delete", request, opts)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var item struct {
+		Task *Task `json:"Task"`
+	}
+	resp, err := s.client.Do(req, &item)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return item.Task, resp, nil
+}

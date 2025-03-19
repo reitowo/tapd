@@ -115,3 +115,47 @@ func (s *WorkspaceService) GetMemberActivityLog(
 
 	return response, resp, nil
 }
+
+type GetMembersRequest struct {
+	// [必须]项目 id 为公司id则查询所有项目
+	WorkspaceID *int64 `url:"workspace_id,omitempty"`
+
+	// 查询字段
+	Fields *Multi[string] `url:"fields,omitempty"`
+}
+
+type UserWorkspace struct {
+	User             string   `json:"user,omitempty"`
+	RoleId           []string `json:"role_id,omitempty"`
+	Name             string   `json:"name,omitempty"`
+	Email            string   `json:"email,omitempty"`
+	JoinProjectTime  string   `json:"join_project_time,omitempty"`
+	RealJoinTime     string   `json:"real_join_time,omitempty"`
+	Status           string   `json:"status,omitempty"`
+	Allocation       string   `json:"allocation,omitempty"`
+	LeaveProjectTime string   `json:"leave_project_time,omitempty"`
+}
+
+type WorkspaceMember struct {
+	Data UserWorkspace `json:"UserWorkspace,omitempty"`
+}
+
+// GetMemberActivityLog 获取成员活动日志
+//
+// https://open.tapd.cn/document/api-doc/API%E6%96%87%E6%A1%A3/api_reference/workspace/member_activity_log.html
+func (s *WorkspaceService) GetMembers(
+	ctx context.Context, request *GetMembersRequest, opts ...RequestOption,
+) ([]*WorkspaceMember, *Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodGet, "workspaces/users", request, opts)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	response := make([]*WorkspaceMember, 0)
+	resp, err := s.client.Do(req, &response)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return response, resp, nil
+}

@@ -1508,8 +1508,8 @@ func (s *StoryService) GetStoryTemplates(
 }
 
 type GetStoryTemplatesRequest struct {
-	WorkspaceID    *int `url:"workspace_id,omitempty"`     // [必须]项目ID
-	WorkitemTypeID *int `url:"workitem_type_id,omitempty"` // 需求类别ID
+	WorkspaceID    *int64 `url:"workspace_id,omitempty"`     // [必须]项目ID
+	WorkitemTypeID *int   `url:"workitem_type_id,omitempty"` // 需求类别ID
 }
 
 type StoryTemplate struct {

@@ -2,6 +2,7 @@ package tapd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -500,16 +501,18 @@ type GetTaskFieldsInfoRequest struct {
 type FieldsInfoHTMLType string
 
 const (
-	TaskFieldsInfoHTMLTypeInput       FieldsInfoHTMLType = "input"
-	TaskFieldsInfoHTMLTypeSelect      FieldsInfoHTMLType = "select"
-	TaskFieldsInfoHTMLTypeRichEdit    FieldsInfoHTMLType = "rich_edit"
-	TaskFieldsInfoHTMLTypeUserChooser FieldsInfoHTMLType = "user_chooser"
-	TaskFieldsInfoHTMLTypeDatetime    FieldsInfoHTMLType = "datetime"
-	TaskFieldsInfoHTMLTypeFloat       FieldsInfoHTMLType = "float"
-	TaskFieldsInfoHTMLTypeMixChooser  FieldsInfoHTMLType = "mix_chooser"
-	TaskFieldsInfoHTMLTypeDateInput   FieldsInfoHTMLType = "dateinput"
-	TaskFieldsInfoHTMLTypeCheckbox    FieldsInfoHTMLType = "checkbox"
-	TaskFieldsInfoHTMLTypeMultiSelect FieldsInfoHTMLType = "multi_select"
+	TaskFieldsInfoHTMLTypeInput           FieldsInfoHTMLType = "input"
+	TaskFieldsInfoHTMLTypeSelect          FieldsInfoHTMLType = "select"
+	TaskFieldsInfoHTMLTypeRichEdit        FieldsInfoHTMLType = "rich_edit"
+	TaskFieldsInfoHTMLTypeUserChooser     FieldsInfoHTMLType = "user_chooser"
+	TaskFieldsInfoHTMLTypeDatetime        FieldsInfoHTMLType = "datetime"
+	TaskFieldsInfoHTMLTypeFloat           FieldsInfoHTMLType = "float"
+	TaskFieldsInfoHTMLTypeMixChooser      FieldsInfoHTMLType = "mix_chooser"
+	TaskFieldsInfoHTMLTypeDateInput       FieldsInfoHTMLType = "dateinput"
+	TaskFieldsInfoHTMLTypeCheckbox        FieldsInfoHTMLType = "checkbox"
+	TaskFieldsInfoHTMLTypeMultiSelect     FieldsInfoHTMLType = "multi_select"
+	TaskFieldsInfoHTMLTypeCascadeCheckbox FieldsInfoHTMLType = "cascade_checkbox"
+	TaskFieldsInfoHTMLTypeCascadeRadio    FieldsInfoHTMLType = "cascade_radio"
 )
 
 type FieldsInfoOption struct {
@@ -533,13 +536,19 @@ type FieldsInfoPureOption struct {
 	Panel       int    `json:"panel,omitempty"`
 }
 
+type FieldsInfoCascadeOption struct {
+	Name     string                    `json:"name,omitempty"`
+	Children []FieldsInfoCascadeOption `json:"children,omitempty"`
+}
+
 type FieldsInfo struct {
-	Name         string                  `json:"name,omitempty"`      // name
-	HTMLType     FieldsInfoHTMLType      `json:"html_type,omitempty"` // 类型
-	Label        string                  `json:"label,omitempty"`     // 中文名称
-	Options      []FieldsInfoOption      `json:"options,omitempty"`   // 候选值
-	ColorOptions []FieldsInfoColorOption `json:"color_options,omitempty"`
-	PureOptions  []FieldsInfoPureOption  `json:"pure_options,omitempty"`
+	Name           string             `json:"name,omitempty"`      // name
+	HTMLType       FieldsInfoHTMLType `json:"html_type,omitempty"` // 类型
+	Label          string             `json:"label,omitempty"`     // 中文名称
+	Options        []FieldsInfoOption `json:"options,omitempty"`   // 候选值
+	CascadeOptions []FieldsInfoCascadeOption
+	ColorOptions   []FieldsInfoColorOption `json:"color_options,omitempty"`
+	PureOptions    []FieldsInfoPureOption  `json:"pure_options,omitempty"`
 }
 
 type rawFieldsInfo map[string]struct {
@@ -549,6 +558,51 @@ type rawFieldsInfo map[string]struct {
 	Options      any                     `json:"options,omitempty"`   // 候选值
 	ColorOptions []FieldsInfoColorOption `json:"color_options,omitempty"`
 	PureOptions  []FieldsInfoPureOption  `json:"pure_options,omitempty"`
+}
+
+func convertRawFieldsInfo(raw rawFieldsInfo) []*FieldsInfo {
+	fields := make([]*FieldsInfo, 0, len(raw))
+	for _, item := range raw {
+		options := make([]FieldsInfoOption, 0)
+		cascade := make([]FieldsInfoCascadeOption, 0, 0)
+
+		if item.Options != nil {
+			if item.HTMLType == TaskFieldsInfoHTMLTypeCascadeCheckbox || item.HTMLType == TaskFieldsInfoHTMLTypeCascadeRadio {
+				b, _ := json.Marshal(item.Options)
+				if err := json.Unmarshal(b, &cascade); err != nil {
+					continue
+				}
+			} else if os, ok := item.Options.(map[string]any); ok {
+				options = make([]FieldsInfoOption, 0, len(os))
+				for key, value := range os {
+					if v, ok2 := value.(string); ok2 {
+						options = append(options, FieldsInfoOption{
+							Value: key,
+							Label: v,
+						})
+					}
+				}
+			} else if arr, ok := item.Options.([]any); ok && len(arr) == 0 {
+				// do nothing for empty array
+			} else if _, ok := item.Options.(struct{}); ok {
+				// do nothing for empty struct
+			} else {
+				panic(fmt.Errorf("unexpected option %v", item))
+			}
+		}
+
+		fields = append(fields, &FieldsInfo{
+			Name:           item.Name,
+			HTMLType:       item.HTMLType,
+			Label:          item.Label,
+			Options:        options,
+			CascadeOptions: cascade,
+			ColorOptions:   item.ColorOptions,
+			PureOptions:    item.PureOptions,
+		})
+	}
+
+	return fields
 }
 
 // GetTaskFieldsInfo 获取任务字段信息
@@ -568,34 +622,7 @@ func (s *TaskService) GetTaskFieldsInfo(
 		return nil, resp, err
 	}
 
-	fields := make([]*FieldsInfo, 0, len(raw))
-	for _, item := range raw {
-		options := make([]FieldsInfoOption, 0)
-
-		if item.Options != nil {
-			if os, ok := item.Options.(map[string]any); ok {
-				options = make([]FieldsInfoOption, 0, len(os))
-				for key, value := range os {
-					if v, ok2 := value.(string); ok2 {
-						options = append(options, FieldsInfoOption{
-							Value: key,
-							Label: v,
-						})
-					}
-				}
-			}
-		}
-
-		fields = append(fields, &FieldsInfo{
-			Name:         item.Name,
-			HTMLType:     item.HTMLType,
-			Label:        item.Label,
-			Options:      options,
-			ColorOptions: item.ColorOptions,
-			PureOptions:  item.PureOptions,
-		})
-	}
-
+	fields := convertRawFieldsInfo(raw)
 	return fields, resp, nil
 }
 

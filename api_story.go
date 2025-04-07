@@ -924,7 +924,7 @@ func (s *StoryService) GetStoryCategories(
 }
 
 type GetStoryCategoriesRequest struct {
-	WorkspaceID *int           `url:"workspace_id,omitempty"` // [必须]项目ID
+	WorkspaceID *int64         `url:"workspace_id,omitempty"` // [必须]项目ID
 	ID          *Multi[int64]  `url:"id,omitempty"`           // ID 支持多ID查询，多个ID用逗号分隔
 	Name        *string        `url:"name,omitempty"`         // 需求分类名称	支持模糊匹配
 	Description *string        `url:"description,omitempty"`  // 需求分类描述
@@ -1518,34 +1518,7 @@ func (s *StoryService) GetStoryFieldsInfo(
 		return nil, resp, err
 	}
 
-	fields := make([]*FieldsInfo, 0, len(raw))
-	for _, item := range raw {
-		options := make([]FieldsInfoOption, 0)
-
-		if item.Options != nil {
-			if os, ok := item.Options.(map[string]any); ok {
-				options = make([]FieldsInfoOption, 0, len(os))
-				for key, value := range os {
-					if v, ok2 := value.(string); ok2 {
-						options = append(options, FieldsInfoOption{
-							Value: key,
-							Label: v,
-						})
-					}
-				}
-			}
-		}
-
-		fields = append(fields, &FieldsInfo{
-			Name:         item.Name,
-			HTMLType:     item.HTMLType,
-			Label:        item.Label,
-			Options:      options,
-			ColorOptions: item.ColorOptions,
-			PureOptions:  item.PureOptions,
-		})
-	}
-
+	fields := convertRawFieldsInfo(raw)
 	return fields, resp, nil
 }
 

@@ -159,3 +159,43 @@ func (s *WorkspaceService) GetMembers(
 
 	return response, resp, nil
 }
+
+type GetWorkspaceInfoRequest struct {
+	// [必须]项目 id
+	WorkspaceID *int64 `url:"workspace_id,omitempty"`
+}
+
+type WorkspaceInfo struct {
+	Id          string `json:"id,omitempty"`
+	Name        string `json:"name,omitempty"`
+	PrettyName  string `json:"pretty_name,omitempty"`
+	Category    string `json:"category,omitempty"`
+	Status      string `json:"status,omitempty"`
+	Description string `json:"description,omitempty"`
+	Created     string `json:"created,omitempty"`
+	Creator     string `json:"creator,omitempty"`
+}
+
+type GetWorkspaceInfoResponse struct {
+	Data WorkspaceInfo `json:"Workspace,omitempty"`
+}
+
+// GetWorkspaceInfo 获取项目信息
+//
+// https://open.tapd.cn/document/api-doc/API%E6%96%87%E6%A1%A3/api_reference/workspace/get_workspace_info.html
+func (s *WorkspaceService) GetWorkspaceInfo(
+	ctx context.Context, request *GetWorkspaceInfoRequest, opts ...RequestOption,
+) (*WorkspaceInfo, *Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodGet, "workspaces/users", request, opts)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	response := &GetWorkspaceInfoResponse{}
+	resp, err := s.client.Do(req, &response)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return &response.Data, resp, nil
+}

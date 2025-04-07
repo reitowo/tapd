@@ -1,6 +1,7 @@
 package tapd
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -555,7 +556,7 @@ type rawFieldsInfo map[string]struct {
 	Name         string                  `json:"name,omitempty"`      // name
 	HTMLType     FieldsInfoHTMLType      `json:"html_type,omitempty"` // 类型
 	Label        string                  `json:"label,omitempty"`     // 中文名称
-	Options      any                     `json:"options,omitempty"`   // 候选值
+	Options      json.RawMessage         `json:"options,omitempty"`   // 候选值
 	ColorOptions []FieldsInfoColorOption `json:"color_options,omitempty"`
 	PureOptions  []FieldsInfoPureOption  `json:"pure_options,omitempty"`
 }
@@ -564,30 +565,46 @@ func convertRawFieldsInfo(raw rawFieldsInfo) []*FieldsInfo {
 	fields := make([]*FieldsInfo, 0, len(raw))
 	for _, item := range raw {
 		options := make([]FieldsInfoOption, 0)
-		cascade := make([]FieldsInfoCascadeOption, 0, 0)
+		cascade := make([]FieldsInfoCascadeOption, 0)
 
 		if item.Options != nil {
 			if item.HTMLType == TaskFieldsInfoHTMLTypeCascadeCheckbox || item.HTMLType == TaskFieldsInfoHTMLTypeCascadeRadio {
-				b, _ := json.Marshal(item.Options)
-				if err := json.Unmarshal(b, &cascade); err != nil {
-					continue
+				if err := json.Unmarshal(item.Options, &cascade); err != nil {
+					panic(fmt.Errorf("unexpected option array %v %v", item, err))
 				}
-			} else if os, ok := item.Options.(map[string]any); ok {
-				options = make([]FieldsInfoOption, 0, len(os))
-				for key, value := range os {
-					if v, ok2 := value.(string); ok2 {
-						options = append(options, FieldsInfoOption{
-							Value: key,
-							Label: v,
-						})
+			} else {
+				decoder := json.NewDecoder(bytes.NewReader(item.Options))
+				token, _ := decoder.Token()
+
+				isArray := false
+				if token == json.Delim('[') {
+					next, _ := decoder.Token()
+					if next != json.Delim(']') {
+						panic(fmt.Errorf("unexpected option array %v", item))
+					} else {
+						isArray = true
 					}
 				}
-			} else if arr, ok := item.Options.([]any); ok && len(arr) == 0 {
-				// do nothing for empty array
-			} else if _, ok := item.Options.(struct{}); ok {
-				// do nothing for empty struct
-			} else {
-				panic(fmt.Errorf("unexpected option %v", item))
+
+				if !isArray {
+					if token != json.Delim('{') {
+						panic(fmt.Errorf("unexpected option object %v", item))
+					}
+
+					for decoder.More() {
+						option := FieldsInfoOption{}
+						tk, _ := decoder.Token()
+						if key, ok := tk.(string); ok {
+							option.Value = key
+						}
+						tv, _ := decoder.Token()
+						if value, ok := tv.(string); ok {
+							option.Label = value
+						}
+						options = append(options, option)
+					}
+
+				}
 			}
 		}
 

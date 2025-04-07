@@ -126,11 +126,11 @@ func TestTaskService_GetTaskFieldsInfo(t *testing.T) {
 			flag2 = true
 			assert.Equal(t, "迭代", field.Label)
 			assert.Equal(t, TaskFieldsInfoHTMLTypeSelect, field.HTMLType)
-			assert.Contains(t, field.Options, TaskFieldsInfoOption{
+			assert.Contains(t, field.Options, FieldsInfoOption{
 				Value: "1111112222001001246",
 				Label: "迭代2",
 			})
-			assert.Contains(t, field.PureOptions, TaskFieldsInfoPureOption{
+			assert.Contains(t, field.PureOptions, FieldsInfoPureOption{
 				ParentID:    "0",
 				WorkspaceID: "11112222",
 				Sort:        "100124600000",

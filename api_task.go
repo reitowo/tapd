@@ -497,33 +497,33 @@ type GetTaskFieldsInfoRequest struct {
 	WorkspaceID *int `url:"workspace_id,omitempty"` // [必须]项目ID
 }
 
-type TaskFieldsInfoHTMLType string
+type FieldsInfoHTMLType string
 
 const (
-	TaskFieldsInfoHTMLTypeInput       TaskFieldsInfoHTMLType = "input"
-	TaskFieldsInfoHTMLTypeSelect      TaskFieldsInfoHTMLType = "select"
-	TaskFieldsInfoHTMLTypeRichEdit    TaskFieldsInfoHTMLType = "rich_edit"
-	TaskFieldsInfoHTMLTypeUserChooser TaskFieldsInfoHTMLType = "user_chooser"
-	TaskFieldsInfoHTMLTypeDatetime    TaskFieldsInfoHTMLType = "datetime"
-	TaskFieldsInfoHTMLTypeFloat       TaskFieldsInfoHTMLType = "float"
-	TaskFieldsInfoHTMLTypeMixChooser  TaskFieldsInfoHTMLType = "mix_chooser"
-	TaskFieldsInfoHTMLTypeDateInput   TaskFieldsInfoHTMLType = "dateinput"
-	TaskFieldsInfoHTMLTypeCheckbox    TaskFieldsInfoHTMLType = "checkbox"
-	TaskFieldsInfoHTMLTypeMultiSelect TaskFieldsInfoHTMLType = "multi_select"
+	TaskFieldsInfoHTMLTypeInput       FieldsInfoHTMLType = "input"
+	TaskFieldsInfoHTMLTypeSelect      FieldsInfoHTMLType = "select"
+	TaskFieldsInfoHTMLTypeRichEdit    FieldsInfoHTMLType = "rich_edit"
+	TaskFieldsInfoHTMLTypeUserChooser FieldsInfoHTMLType = "user_chooser"
+	TaskFieldsInfoHTMLTypeDatetime    FieldsInfoHTMLType = "datetime"
+	TaskFieldsInfoHTMLTypeFloat       FieldsInfoHTMLType = "float"
+	TaskFieldsInfoHTMLTypeMixChooser  FieldsInfoHTMLType = "mix_chooser"
+	TaskFieldsInfoHTMLTypeDateInput   FieldsInfoHTMLType = "dateinput"
+	TaskFieldsInfoHTMLTypeCheckbox    FieldsInfoHTMLType = "checkbox"
+	TaskFieldsInfoHTMLTypeMultiSelect FieldsInfoHTMLType = "multi_select"
 )
 
-type TaskFieldsInfoOption struct {
+type FieldsInfoOption struct {
 	Value string `json:"key,omitempty"`   // 值
 	Label string `json:"label,omitempty"` // 中文名称
 }
 
-type TaskFieldsInfoColorOption struct {
+type FieldsInfoColorOption struct {
 	Value string `json:"value,omitempty"`
 	Label string `json:"label,omitempty"`
 	Color string `json:"color,omitempty"`
 }
 
-type TaskFieldsInfoPureOption struct {
+type FieldsInfoPureOption struct {
 	ParentID    string `json:"parent_id,omitempty"`
 	WorkspaceID string `json:"workspace_id,omitempty"`
 	Sort        string `json:"sort,omitempty"`
@@ -533,22 +533,22 @@ type TaskFieldsInfoPureOption struct {
 	Panel       int    `json:"panel,omitempty"`
 }
 
-type TaskFieldsInfo struct {
-	Name         string                      `json:"name,omitempty"`      // name
-	HTMLType     TaskFieldsInfoHTMLType      `json:"html_type,omitempty"` // 类型
-	Label        string                      `json:"label,omitempty"`     // 中文名称
-	Options      []TaskFieldsInfoOption      `json:"options,omitempty"`   // 候选值
-	ColorOptions []TaskFieldsInfoColorOption `json:"color_options,omitempty"`
-	PureOptions  []TaskFieldsInfoPureOption  `json:"pure_options,omitempty"`
+type FieldsInfo struct {
+	Name         string                  `json:"name,omitempty"`      // name
+	HTMLType     FieldsInfoHTMLType      `json:"html_type,omitempty"` // 类型
+	Label        string                  `json:"label,omitempty"`     // 中文名称
+	Options      []FieldsInfoOption      `json:"options,omitempty"`   // 候选值
+	ColorOptions []FieldsInfoColorOption `json:"color_options,omitempty"`
+	PureOptions  []FieldsInfoPureOption  `json:"pure_options,omitempty"`
 }
 
-type rawTaskFieldsInfo map[string]struct {
-	Name         string                      `json:"name,omitempty"`      // name
-	HTMLType     TaskFieldsInfoHTMLType      `json:"html_type,omitempty"` // 类型
-	Label        string                      `json:"label,omitempty"`     // 中文名称
-	Options      any                         `json:"options,omitempty"`   // 候选值
-	ColorOptions []TaskFieldsInfoColorOption `json:"color_options,omitempty"`
-	PureOptions  []TaskFieldsInfoPureOption  `json:"pure_options,omitempty"`
+type rawFieldsInfo map[string]struct {
+	Name         string                  `json:"name,omitempty"`      // name
+	HTMLType     FieldsInfoHTMLType      `json:"html_type,omitempty"` // 类型
+	Label        string                  `json:"label,omitempty"`     // 中文名称
+	Options      any                     `json:"options,omitempty"`   // 候选值
+	ColorOptions []FieldsInfoColorOption `json:"color_options,omitempty"`
+	PureOptions  []FieldsInfoPureOption  `json:"pure_options,omitempty"`
 }
 
 // GetTaskFieldsInfo 获取任务字段信息
@@ -556,28 +556,28 @@ type rawTaskFieldsInfo map[string]struct {
 // https://open.tapd.cn/document/api-doc/API%E6%96%87%E6%A1%A3/api_reference/task/get_task_fields_info.html
 func (s *TaskService) GetTaskFieldsInfo(
 	ctx context.Context, request *GetTaskFieldsInfoRequest, opts ...RequestOption,
-) ([]*TaskFieldsInfo, *Response, error) {
+) ([]*FieldsInfo, *Response, error) {
 	req, err := s.client.NewRequest(ctx, http.MethodGet, "tasks/get_fields_info", request, opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	var raw rawTaskFieldsInfo
+	var raw rawFieldsInfo
 	resp, err := s.client.Do(req, &raw)
 	if err != nil {
 		return nil, resp, err
 	}
 
-	fields := make([]*TaskFieldsInfo, 0, len(raw))
+	fields := make([]*FieldsInfo, 0, len(raw))
 	for _, item := range raw {
-		options := make([]TaskFieldsInfoOption, 0)
+		options := make([]FieldsInfoOption, 0)
 
 		if item.Options != nil {
 			if os, ok := item.Options.(map[string]any); ok {
-				options = make([]TaskFieldsInfoOption, 0, len(os))
+				options = make([]FieldsInfoOption, 0, len(os))
 				for key, value := range os {
 					if v, ok2 := value.(string); ok2 {
-						options = append(options, TaskFieldsInfoOption{
+						options = append(options, FieldsInfoOption{
 							Value: key,
 							Label: v,
 						})
@@ -586,7 +586,7 @@ func (s *TaskService) GetTaskFieldsInfo(
 			}
 		}
 
-		fields = append(fields, &TaskFieldsInfo{
+		fields = append(fields, &FieldsInfo{
 			Name:         item.Name,
 			HTMLType:     item.HTMLType,
 			Label:        item.Label,

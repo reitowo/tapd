@@ -1496,9 +1496,58 @@ type UpdateStoryRequest struct {
 // 更新需求的需求类别
 // -----------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
-// 获取需求所有字段及候选值
-// -----------------------------------------------------------------------------
+// GetStoryFieldsInfo 获取需求所有字段及候选值
+//
+// https://open.tapd.cn/document/api-doc/API%E6%96%87%E6%A1%A3/api_reference/task/get_task_fields_info.html
+
+type GetStoryFieldsInfoRequest struct {
+	WorkspaceID *int64 `url:"workspace_id,omitempty"` // [必须]项目ID
+}
+
+func (s *StoryService) GetStoryFieldsInfo(
+	ctx context.Context, request *GetStoryFieldsInfoRequest, opts ...RequestOption,
+) ([]*FieldsInfo, *Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodGet, "stories/get_fields_info", request, opts)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var raw rawFieldsInfo
+	resp, err := s.client.Do(req, &raw)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	fields := make([]*FieldsInfo, 0, len(raw))
+	for _, item := range raw {
+		options := make([]FieldsInfoOption, 0)
+
+		if item.Options != nil {
+			if os, ok := item.Options.(map[string]any); ok {
+				options = make([]FieldsInfoOption, 0, len(os))
+				for key, value := range os {
+					if v, ok2 := value.(string); ok2 {
+						options = append(options, FieldsInfoOption{
+							Value: key,
+							Label: v,
+						})
+					}
+				}
+			}
+		}
+
+		fields = append(fields, &FieldsInfo{
+			Name:         item.Name,
+			HTMLType:     item.HTMLType,
+			Label:        item.Label,
+			Options:      options,
+			ColorOptions: item.ColorOptions,
+			PureOptions:  item.PureOptions,
+		})
+	}
+
+	return fields, resp, nil
+}
 
 // -----------------------------------------------------------------------------
 // 获取需求所有字段的中英文
@@ -1574,7 +1623,7 @@ func (s *StoryService) GetStoryTemplateFields(
 }
 
 type GetStoryTemplateFieldsRequest struct {
-	WorkspaceID *int   `url:"workspace_id,omitempty"` // [必须]项目ID
+	WorkspaceID *int64 `url:"workspace_id,omitempty"` // [必须]项目ID
 	TemplateID  *int64 `url:"template_id,omitempty"`  // [必须]模板ID
 }
 

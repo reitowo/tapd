@@ -482,7 +482,11 @@ func (s *IterationService) GetWorkitemTypes(
 }
 
 type GetWorkitemTypesRequest struct {
-	WorkspaceID *int `url:"workspace_id,omitempty"` // 项目 ID
+	WorkspaceID *int64  `url:"workspace_id,omitempty"` // 项目 ID
+	Name        *string `url:"name,omitempty"`
+	Status      *int    `url:"status,omitempty"`
+	Limit       *int    `url:"limit,omitempty"`
+	Page        *int    `url:"page,omitempty"`
 }
 
 type WorkitemType struct {

@@ -1199,8 +1199,32 @@ type StoryCustomFieldsSetting struct {
 // 批量修改保密信息
 // -----------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
-// 获取需求类别
+// GetWorkitemTypes 获取需求类别
+// https://open.tapd.cn/document/api-doc/API%E6%96%87%E6%A1%A3/api_reference/story/get_workitem_types.html
+func (s *StoryService) GetWorkitemTypes(
+	ctx context.Context, request *GetWorkitemTypesRequest, opts ...RequestOption,
+) ([]*WorkitemType, *Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodGet, "workitem_types", request, opts)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var items []struct {
+		WorkitemType *WorkitemType `json:"WorkitemType"`
+	}
+	resp, err := s.client.Do(req, &items)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	workitemTypes := make([]*WorkitemType, 0, len(items))
+	for _, item := range items {
+		workitemTypes = append(workitemTypes, item.WorkitemType)
+	}
+
+	return workitemTypes, resp, nil
+}
+
 // -----------------------------------------------------------------------------
 
 // UpdateStory 更新需求
@@ -1509,7 +1533,7 @@ func (s *StoryService) GetStoryTemplates(
 
 type GetStoryTemplatesRequest struct {
 	WorkspaceID    *int64 `url:"workspace_id,omitempty"`     // [必须]项目ID
-	WorkitemTypeID *int   `url:"workitem_type_id,omitempty"` // 需求类别ID
+	WorkitemTypeID *int64 `url:"workitem_type_id,omitempty"` // 需求类别ID
 }
 
 type StoryTemplate struct {

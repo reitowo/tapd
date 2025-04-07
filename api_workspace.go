@@ -186,7 +186,7 @@ type GetWorkspaceInfoResponse struct {
 func (s *WorkspaceService) GetWorkspaceInfo(
 	ctx context.Context, request *GetWorkspaceInfoRequest, opts ...RequestOption,
 ) (*WorkspaceInfo, *Response, error) {
-	req, err := s.client.NewRequest(ctx, http.MethodGet, "workspaces/users", request, opts)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, "workspaces/get_workspace_info", request, opts)
 	if err != nil {
 		return nil, nil, err
 	}

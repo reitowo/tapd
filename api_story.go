@@ -44,6 +44,25 @@ func (s *StoryService) CreateStory(
 	return response.Story, resp, nil
 }
 
+func (s *StoryService) CreateStoryWithData(
+	ctx context.Context, data any, opts ...RequestOption,
+) (*Story, *Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodPost, "stories", data, opts)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var response struct {
+		Story *Story `json:"story"`
+	}
+	resp, err := s.client.Do(req, &response)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return response.Story, resp, nil
+}
+
 type CreateStoryRequest struct {
 	WorkspaceID     *int           `json:"workspace_id,omitempty"`     // [必须]项目ID
 	Name            *string        `json:"name,omitempty"`             // [必须]标题

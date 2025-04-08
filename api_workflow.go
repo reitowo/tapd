@@ -43,7 +43,7 @@ func (s *WorkflowService) GetAllLastSteps(
 }
 
 type GetAllLastStepsRequest struct {
-	WorkspaceID *int    `url:"workspace_id,omitempty"` // 项目 ID
+	WorkspaceID *int64  `url:"workspace_id,omitempty"` // 项目 ID
 	System      *string `url:"system,omitempty"`       // 系统名。目前只支持 story（需求的）
 	GroupKey    *string `url:"group_key,omitempty"`    // 分组字段，可选字段 workflow_id(工作流ID) 或 workitem_type_id (需求类别ID)	默认按workitem_type_id分组
 }

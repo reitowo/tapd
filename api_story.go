@@ -423,7 +423,7 @@ type GetStoriesRequest struct {
 	ParentID          *string            `url:"parent_id,omitempty"`        // 父需求
 	ChildrenID        *string            `url:"children_id,omitempty"`      // 子需求	为空查询传：丨
 	Description       *string            `url:"description,omitempty"`      // 详细描述	支持模糊匹配
-	WorkspaceID       *int               `url:"workspace_id,omitempty"`     // 项目ID
+	WorkspaceID       *int64             `url:"workspace_id,omitempty"`     // 项目ID
 	Limit             *int               `url:"limit,omitempty"`            // 设置返回数量限制，默认为30
 	Page              *int               `url:"page,omitempty"`             // 返回当前数量限制下第N页的数据，默认为1（第一页）
 	Order             *Order             `url:"order,omitempty"`            // 排序规则，规则：字段名 ASC或者DESC
@@ -1270,7 +1270,7 @@ func (s *StoryService) UpdateStory(
 
 type UpdateStoryRequest struct {
 	ID                *int64         `json:"id"`                           // 必须
-	WorkspaceID       *int           `json:"workspace_id"`                 // 必须
+	WorkspaceID       *int64         `json:"workspace_id"`                 // 必须
 	Name              *string        `json:"name,omitempty"`               // 标题
 	Priority          *string        `json:"priority,omitempty"`           // 优先级。
 	PriorityLabel     *PriorityLabel `json:"priority_label,omitempty"`     // 优先级。推荐使用这个字段
